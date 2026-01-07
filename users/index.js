@@ -1,5 +1,5 @@
 const express = require("express");
-const {userSignupSchema, userSigninSchema} = require("../types");
+const {userSignupSchema, userSigninSchema, updatePreferencesSchema} = require("../types");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { authMiddleware } = require("../middlewares/authMiddleware");
@@ -93,5 +93,32 @@ router.get("/preferences", authMiddleware, (req, res) => {
         preferences: user.preferences
     });
 });
+
+router.put("/preferences", authMiddleware, (req, res) => {
+    const userId = req.user.id;
+    const body = req.body;
+    
+    const parsedBody = updatePreferencesSchema.safeParse(body);
+
+    if(!parsedBody.success){
+        return res.status(400).json({
+            message: "Invalid inputs."
+        });
+    }
+
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if(userIndex === -1){
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+
+    users[userIndex].preferences = body.preferences;
+
+    return res.status(200).json({
+        message: "Preferences updated successfully."
+    });
+})
 
 module.exports = {userRoutes: router}
