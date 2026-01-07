@@ -2,6 +2,7 @@ const express = require("express");
 const {userSignupSchema, userSigninSchema} = require("../types");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const router = express.Router()
 
@@ -77,8 +78,20 @@ router.post("/login", async (req, res) => {
 
 });
 
-router.get("/preferences", (req, res) => {
-    
+router.get("/preferences", authMiddleware, (req, res) => {
+    const userId = req.user.id;
+
+    const user = users.find(u => u.id === userId);
+
+    if(!user){
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+
+    return res.status(200).json({
+        preferences: user.preferences
+    });
 });
 
 module.exports = {userRoutes: router}
