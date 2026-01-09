@@ -1,13 +1,15 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const { signupSchema } = require('./types');
 const { userRoutes } = require('./users');
-const { newsRoutes } = require('./news')
+const { newsRoutes } = require('./news');
+const connectDB = require("./config/db");
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
