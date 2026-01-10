@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     },
     publishedAt: {
       type: Date,
+      default: Date.now
     },
   },
   { timestamps: true }

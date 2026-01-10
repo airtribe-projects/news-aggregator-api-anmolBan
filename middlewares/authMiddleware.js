@@ -5,7 +5,7 @@ async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.split(' ')[1]) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'Authorization token missing' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -16,15 +16,18 @@ async function authMiddleware(req, res, next) {
 
     const user = await User.findById(id);
 
-    if (!user || user.email !== email) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    if (user.email !== email) {
+      return res.status(401).json({ message: 'Email does not match' });
     }
 
     req.user = { id, email, name, preferences };
 
   } catch (err) {
     console.error(err);
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 
   next();
